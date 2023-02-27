@@ -54,7 +54,7 @@ variable "key_vault_name" {
 variable "namespaces" {
   type        = list(string)
   description = "A list of namespaces to create in the cluster"
-  default     = ["argocd"]
+  default     = ["ns"]
 }
 
 variable "argo_config" {

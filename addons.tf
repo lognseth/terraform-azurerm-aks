@@ -14,6 +14,7 @@ resource "kubernetes_namespace" "ns" {
 ###########
 
 resource "kubernetes_namespace" "argo_ns" {
+  count = var.argo_cd == true ? 1 : 0
   metadata {
     name = "argocd"
   }
@@ -94,6 +95,7 @@ resource "helm_release" "csi_key_vault_argo" {
 ###########
 
 resource "kubernetes_namespace" "ingress_ns" {
+  count = var.ingress_controller == true ? 1 : 0
   metadata {
     name = "ingress-nginx"
   }
