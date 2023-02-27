@@ -162,7 +162,7 @@ resource "helm_release" "argo_cd" {
     name  = "controller.metrics.enabled"
     value = "true"
   }
-
+  /* 
   set {
     name  = "controller.metrics.serviceMonitor.enabled"
     value = "true"
@@ -171,5 +171,5 @@ resource "helm_release" "argo_cd" {
   set {
     name  = "controller.metrics.serviceMonitor.additionalLabels.release"
     value = "kube-prometheus-stack"
-  }
+  } */
 }
