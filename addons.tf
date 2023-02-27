@@ -22,12 +22,27 @@ resource "kubernetes_namespace" "argo_ns" {
 
 resource "helm_release" "argocd" {
   count      = var.argo_cd == true ? 1 : 0
-  depends_on = [kubernetes_namespace.ns]
   name       = "argocd"
   repository = "https://argoproj.github.io/argo-helm"
   chart      = "argo-cd"
   version    = "5.16.2"
-  namespace  = kubernetes_namespace.argo_ns.metadata[0].name
+  namespace  = kubernetes_namespace.argo_ns[0].metadata[0].name
+
+  # Documentation on possible values can be found here: https://github.com/argoproj/argo-helm/blob/main/charts/argo-cd/README.md
+  set {
+    name  = "controller.metrics.enabled"
+    value = "true"
+  }
+
+  set {
+    name  = "controller.metrics.serviceMonitor.enabled"
+    value = "true"
+  }
+
+  set {
+    name  = "controller.metrics.serviceMonitor.additionalLabels.release"
+    value = "kube-prometheus-stack"
+  }
 }
 
 resource "helm_release" "gitops_app" {
@@ -94,6 +109,16 @@ resource "helm_release" "csi_key_vault_argo" {
 # Ingress #
 ###########
 
+resource "azurerm_public_ip" "nginx_ingress" {
+  count               = var.ingress_controller == true ? 1 : 0
+  name                = "${var.name}-public-IP"
+  location            = azurerm_kubernetes_cluster.kubernetes.location
+  resource_group_name = azurerm_kubernetes_cluster.kubernetes.node_resource_group
+  allocation_method   = "Static"
+  domain_name_label   = var.ip_domain_name_label
+  sku                 = "Standard"
+}
+
 resource "kubernetes_namespace" "ingress_ns" {
   count = var.ingress_controller == true ? 1 : 0
   metadata {
@@ -102,12 +127,11 @@ resource "kubernetes_namespace" "ingress_ns" {
 }
 
 resource "helm_release" "nginx_ingress_controller" {
-  count = var.ingress_controller == true ? 1 : 0
-
+  count      = var.ingress_controller == true ? 1 : 0
   name       = "nginx-ingress-controller"
   repository = "https://kubernetes.github.io/ingress-nginx"
   chart      = "ingress-nginx"
-  namespace  = kubernetes_namespace.ingress_ns.metadata[0].name
+  namespace  = kubernetes_namespace.ingress_ns[0].metadata[0].name
 
   set {
     name  = "controller.replicaCount"
