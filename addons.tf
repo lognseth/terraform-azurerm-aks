@@ -7,12 +7,17 @@ resource "kubernetes_namespace" "ns" {
   metadata {
     name = each.value
   }
-
 }
 
 ###########
 # ARGO CD #
 ###########
+
+resource "kubernetes_namespace" "argo_ns" {
+  metadata {
+    name = "argocd"
+  }
+}
 
 resource "helm_release" "argocd" {
   count      = var.argo_cd == true ? 1 : 0
@@ -21,7 +26,7 @@ resource "helm_release" "argocd" {
   repository = "https://argoproj.github.io/argo-helm"
   chart      = "argo-cd"
   version    = "5.16.2"
-  namespace  = "argocd"
+  namespace  = kubernetes_namespace.argo_ns.metadata[0].name
 }
 
 resource "helm_release" "gitops_app" {
@@ -88,13 +93,19 @@ resource "helm_release" "csi_key_vault_argo" {
 # Ingress #
 ###########
 
+resource "kubernetes_namespace" "ingress_ns" {
+  metadata {
+    name = "ingress-nginx"
+  }
+}
+
 resource "helm_release" "nginx_ingress_controller" {
   count = var.ingress_controller == true ? 1 : 0
 
   name       = "nginx-ingress-controller"
   repository = "https://kubernetes.github.io/ingress-nginx"
   chart      = "ingress-nginx"
-  namespace  = "ingress-nginx"
+  namespace  = kubernetes_namespace.ingress_ns.metadata[0].name
 
   set {
     name  = "controller.replicaCount"
