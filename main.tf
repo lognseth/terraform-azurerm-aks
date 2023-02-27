@@ -90,3 +90,86 @@ resource "azurerm_role_assignment" "aks_network_role" {
   role_definition_name = "Network Contributor"
   principal_id         = azurerm_kubernetes_cluster.kubernetes.identity[0].principal_id
 }
+
+# Create Static Public IP Address to be used by Nginx Ingress
+resource "azurerm_public_ip" "nginx_ingress" {
+  count               = var.ingress_controller == true ? 1 : 0
+  name                = "${var.name}-public-IP"
+  location            = azurerm_kubernetes_cluster.kubernetes.location
+  resource_group_name = azurerm_kubernetes_cluster.kubernetes.node_resource_group
+  allocation_method   = "Static"
+  domain_name_label   = var.ip_domain_name_label
+  sku                 = "Standard"
+}
+
+resource "helm_release" "nginx_ingress_controller" {
+  count = var.ingress_controller == true ? 1 : 0
+
+  name       = "nginx-ingress-controller"
+  repository = "https://kubernetes.github.io/ingress-nginx"
+  chart      = "ingress-nginx"
+
+  set {
+    name  = "controller.replicaCount"
+    value = 2
+  }
+
+  set {
+    name  = "controller.service.loadBalancerIP"
+    value = azurerm_public_ip.nginx_ingress[0].ip_address
+  }
+
+  set {
+    name  = "controller.service.externalTrafficPolicy"
+    value = "Local"
+  }
+
+  set {
+    name  = "controller.metrics.enabled"
+    value = "true"
+  }
+
+  set {
+    name  = "controller.metrics.serviceMonitor.enabled"
+    value = "true"
+  }
+
+  set {
+    name  = "controller.metrics.serviceMonitor.additionalLabels.release"
+    value = "kube-prometheus-stack"
+  }
+}
+
+resource "kubernetes_namespace" "argo_cd_namespace" {
+  count = var.argo_cd == true ? 1 : 0
+  metadata {
+    name = "argocd"
+  }
+}
+
+resource "helm_release" "argo_cd" {
+  count      = var.argo_cd == true ? 1 : 0
+  depends_on = [kubernetes_namespace.argo_cd_namespace[0]]
+
+  name       = "argocd"
+  repository = "https://argoproj.github.io/argo-helm"
+  chart      = "argo-cd"
+  version    = "4.5.0"
+  namespace  = kubernetes_namespace.argo_cd_namespace[0].metadata[0].name
+
+  # Documentation on possible values can be found here: https://github.com/argoproj/argo-helm/blob/main/charts/argo-cd/README.md
+  set {
+    name  = "controller.metrics.enabled"
+    value = "true"
+  }
+
+  set {
+    name  = "controller.metrics.serviceMonitor.enabled"
+    value = "true"
+  }
+
+  set {
+    name  = "controller.metrics.serviceMonitor.additionalLabels.release"
+    value = "kube-prometheus-stack"
+  }
+}

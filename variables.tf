@@ -47,25 +47,6 @@ variable "key_vault_id" {
   description = "The ID of the key vault where you want to store the AKS cluster secrets"
 }
 
-variable "key_vault_name" {
-  type = string
-}
-
-variable "namespaces" {
-  type        = list(string)
-  description = "A list of namespaces to create in the cluster"
-  default     = ["ns"]
-}
-
-variable "argo_config" {
-  type = object({
-    username = string
-    password = string
-    repo_url = string
-    app_path = string
-  })
-}
-
 variable "aks_configuration" {
   description = "Defines AKS performance and size parameters"
   type = object({
