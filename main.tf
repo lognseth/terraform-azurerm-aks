@@ -129,7 +129,7 @@ resource "helm_release" "nginx_ingress_controller" {
     value = "true"
   }
 
-  set {
+  /* set {
     name  = "controller.metrics.serviceMonitor.enabled"
     value = "true"
   }
@@ -137,7 +137,7 @@ resource "helm_release" "nginx_ingress_controller" {
   set {
     name  = "controller.metrics.serviceMonitor.additionalLabels.release"
     value = "kube-prometheus-stack"
-  }
+  } */
 }
 
 resource "kubernetes_namespace" "argo_cd_namespace" {
