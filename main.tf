@@ -99,7 +99,7 @@ resource "azurerm_public_ip" "nginx_ingress" {
   resource_group_name = azurerm_kubernetes_cluster.kubernetes.node_resource_group
   allocation_method   = "Static"
   domain_name_label   = var.ip_domain_name_label
-  sku                 = var.load_balancer_sku == "standard" ? "Standard" : "Basic"
+  sku                 = var.aks.configuration.load_balancer_sku == "standard" ? "Standard" : "Basic"
 }
 
 resource "helm_release" "nginx_ingress_controller" {
