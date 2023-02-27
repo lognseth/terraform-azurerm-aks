@@ -1,0 +1,14 @@
+managed_identity_id: ""
+kv_name: ""
+tenant_id: ""
+
+csi-secrets-store-provider-azure:
+  install: false
+
+  nameOverride: "azure-keyvault"
+  fullnameOverride: "azure-keyvault-csi-secrets"
+
+  secrets-store-csi-driver:
+    # Needed as they are required to be existing as secrets by default
+    syncSecret:
+      enabled: true

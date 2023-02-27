@@ -1,0 +1,27 @@
+apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
+kind: SecretProviderClass
+metadata:
+  name: aop-shd-minio-kv
+spec:
+  provider: azure
+  secretObjects:
+    - secretName: aop-shd-minio-kv
+      data:
+        - key: aop-minio-user
+          objectName: aop-minio-user
+        - key: aop-minio-password
+          objectName: aop-minio-password
+      type: Opaque
+  parameters:
+    useVMManagedIdentity: "true"
+    userAssignedIdentityID: {{.Values.managed_identity_id}}
+    keyvaultName: {{.Values.kv_name}}
+    objects: |
+      array:
+        - |   
+          objectName: aop-minio-user
+          objectType: secret
+        - |   
+          objectName: aop-minio-password
+          objectType: secret
+    tenantId: {{.Values.tenant_id}}

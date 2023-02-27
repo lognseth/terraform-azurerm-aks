@@ -1,0 +1,32 @@
+apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
+kind: SecretProviderClass
+metadata:
+  name: aop-shd-postgres-kv
+spec:
+  provider: azure
+  secretObjects:
+    - secretName: aop-shd-postgres-kv
+      data:
+        - key: aop-postgres-user
+          objectName: aop-postgres-user
+        - key: aop-postgres-password
+          objectName: aop-postgres-password
+        - key: aop-postgres-database
+          objectName: aop-postgres-database
+      type: Opaque
+  parameters:
+    useVMManagedIdentity: "true"
+    userAssignedIdentityID: {{.Values.managed_identity_id}}
+    keyvaultName: {{.Values.kv_name}}
+    objects: |
+      array:
+        - |   
+          objectName: aop-postgres-user
+          objectType: secret
+        - |   
+          objectName: aop-postgres-password
+          objectType: secret
+        - |   
+          objectName: aop-postgres-database
+          objectType: secret
+    tenantId: {{.Values.tenant_id}}

@@ -1,0 +1,9 @@
+apiVersion: v2
+name: csi-key-vault
+version: 2.0.4
+description: A Helm chart to install the resources for the aop key vault in the namespace.
+dependencies:
+  - name: csi-secrets-store-provider-azure
+    repository: https://raw.githubusercontent.com/Azure/secrets-store-csi-driver-provider-azure/master/charts
+    version: 1.0.1
+    condition: csi-secrets-store-provider-azure.install

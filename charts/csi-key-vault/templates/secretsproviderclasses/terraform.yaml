@@ -1,0 +1,32 @@
+apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
+kind: SecretProviderClass
+metadata:
+  name: aop-shd-terraform-kv
+spec:
+  provider: azure
+  secretObjects:
+    - secretName: aop-shd-terraform-kv
+      data:
+        - key: aop-wfe-tenant-id
+          objectName: aop-wfe-tenant-id
+        - key: aop-wfe-sp-client-id
+          objectName: aop-wfe-sp-client-id
+        - key: aop-wfe-sp-client-secret
+          objectName: aop-wfe-sp-client-secret
+      type: Opaque
+  parameters:
+    useVMManagedIdentity: "true"
+    userAssignedIdentityID: {{.Values.managed_identity_id}}
+    keyvaultName: {{.Values.kv_name}}
+    objects: |
+      array:
+        - |    
+          objectName: aop-wfe-tenant-id                                                                                      
+          objectType: secret
+        - |
+          objectName: aop-wfe-sp-client-id                                                                                    
+          objectType: secret
+        - |   
+          objectName: aop-wfe-sp-client-secret                                                                                     
+          objectType: secret
+    tenantId: {{.Values.tenant_id}}

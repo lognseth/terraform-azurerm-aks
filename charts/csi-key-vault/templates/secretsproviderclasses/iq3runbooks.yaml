@@ -1,0 +1,47 @@
+apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
+kind: SecretProviderClass
+metadata:
+  name: aop-shd-iq3runbooks-kv
+spec:
+  provider: azure
+  secretObjects:
+    - secretName: aop-shd-iq3runbooks-kv
+      data:
+        - key: aop-automation-auth-client-id
+          objectName: aop-automation-auth-client-id
+        - key: aop-automation-auth-secret
+          objectName: aop-automation-auth-secret
+        - key: aop-automation-tenant
+          objectName: aop-automation-tenant
+        - key: aop-iq3-lighthouse-auth-client-id
+          objectName: aop-iq3-lighthouse-auth-client-id
+        - key: aop-iq3-lighthouse-auth-secret
+          objectName: aop-iq3-lighthouse-auth-secret
+        - key: aop-iq3-lighthouse-tenant
+          objectName: aop-iq3-lighthouse-tenant
+      type: Opaque
+  parameters:
+    useVMManagedIdentity: "true"
+    userAssignedIdentityID: {{.Values.managed_identity_id}}
+    keyvaultName: {{.Values.kv_name}}
+    objects: |
+      array:
+        - |   
+          objectName: aop-automation-auth-client-id
+          objectType: secret
+        - |   
+          objectName: aop-automation-auth-secret
+          objectType: secret
+        - |   
+          objectName: aop-automation-tenant
+          objectType: secret
+        - |
+          objectName: aop-iq3-lighthouse-auth-client-id
+          objectType: secret
+        - |   
+          objectName: aop-iq3-lighthouse-auth-secret
+          objectType: secret
+        - |   
+          objectName: aop-iq3-lighthouse-tenant
+          objectType: secret
+    tenantId: {{.Values.tenant_id}}

@@ -1,0 +1,47 @@
+apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
+kind: SecretProviderClass
+metadata:
+  name: aop-shd-dispatcher-kv
+spec:
+  provider: azure
+  secretObjects:
+    - secretName: aop-shd-dispatcher-kv
+      data:
+        - key: aop-wfe-sb-connection-string
+          objectName: aop-wfe-sb-connection-string
+        - key: aop-wfe-sb-order-automation-ready-topic
+          objectName: aop-wfe-sb-order-automation-ready-topic
+        - key: aop-wfe-sb-topic-subscription
+          objectName: aop-wfe-sb-topic-subscription
+        - key: aop-wfe-sb-fqdn
+          objectName: aop-wfe-sb-fqdn
+        - key: aop-app-insights-connection-string
+          objectName: aop-app-insights-connection-string
+        - key: aop-wfe-dispatcher-argo-token
+          objectName: aop-wfe-dispatcher-argo-token         
+      type: Opaque
+  parameters:
+    useVMManagedIdentity: "true"
+    userAssignedIdentityID: {{.Values.managed_identity_id}}
+    keyvaultName: {{.Values.kv_name}}
+    objects: |
+      array:
+        - |   
+          objectName: aop-wfe-sb-connection-string                                                                                     
+          objectType: secret
+        - |   
+          objectName: aop-wfe-sb-order-automation-ready-topic                                                                                     
+          objectType: secret
+        - |   
+          objectName: aop-wfe-sb-topic-subscription                                                                                     
+          objectType: secret         
+        - |   
+          objectName: aop-wfe-sb-fqdn
+          objectType: secret
+        - |   
+          objectName: aop-app-insights-connection-string
+          objectType: secret
+        - |   
+          objectName: aop-wfe-dispatcher-argo-token
+          objectType: secret
+    tenantId: {{.Values.tenant_id}}

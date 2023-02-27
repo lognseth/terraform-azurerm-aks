@@ -1,0 +1,4 @@
+apiVersion: v2
+name: aop-applications
+description: Helm chart to set up all custom applications into argo-cd configurations.
+version: 2.0.2
