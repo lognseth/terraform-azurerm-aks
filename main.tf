@@ -94,6 +94,7 @@ resource "azurerm_role_assignment" "aks_network_role" {
 # Create Static Public IP Address to be used by Nginx Ingress
 resource "azurerm_public_ip" "nginx_ingress" {
   count               = var.ingress_controller == true ? 1 : 0
+  depends_on          = [azurerm_role_assignment.aks_network_role]
   name                = "${var.name}-public-IP"
   location            = azurerm_kubernetes_cluster.kubernetes.location
   resource_group_name = azurerm_kubernetes_cluster.kubernetes.node_resource_group
@@ -103,8 +104,8 @@ resource "azurerm_public_ip" "nginx_ingress" {
 }
 
 resource "helm_release" "nginx_ingress_controller" {
-  count = var.ingress_controller == true ? 1 : 0
-
+  count      = var.ingress_controller == true ? 1 : 0
+  depends_on = [azurerm_role_assignment.aks_network_role]
   name       = "nginx-ingress-controller"
   repository = "https://kubernetes.github.io/ingress-nginx"
   chart      = "ingress-nginx"
